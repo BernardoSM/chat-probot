@@ -13,18 +13,24 @@
 				<div class="messages">
 					
 				</div>
-				<div class="input">
-					<textarea v-model="message" placeholder="Digite uma mensagem"></textarea>
+				<div class="input" :class="'size-' + inputSize">
+					<span v-if="!focused" class="placeholder">Digite uma mensagem</span>
+					<div class="fake-textarea" contenteditable
+						:class="{focused}"  
+						@focus="textAreaFocus()"
+						@focusout="textAreaFocusOut($event)"
+						tabindex="1">
+					</div>
 					<div id="picker" 
 						v-show="picker" 
-						@focusout="handleFocusOut"
+						@focusout="pickerFocusOut()"
 						tabindex="0">
 						<VEmojiPicker @select="selectEmoji" />
 					</div>
 					<div class="emoji-button" @click="pickerFocus()">
 						<font-awesome-icon :icon="['far', 'grin']" />
 					</div>
-					<div class="send-button">
+					<div class="send-button" @click="sendMessage()">
 						<font-awesome-icon icon="paper-plane" />
 					</div>
 				</div>
@@ -46,21 +52,37 @@
 		data() {
 			return {
 				picker: false,
+				focused: false,
+				inputSize: 0,
 				message: ''
 			}
 		},
 		methods: {
 			selectEmoji(emoji) {
-				console.log(emoji)
+				document.querySelector('.fake-textarea').innerText = document.querySelector('.fake-textarea').innerText + emoji.data
+				this.message = document.querySelector('.fake-textarea').innerText
 			},
 			pickerFocus() {
-				this.picker = true
+				this.picker = !this.picker
 				setTimeout(() => {
 					document.querySelector('#picker').focus()
 				}, 100)
 		    },
-		    handleFocusOut() {
-		        this.picker = !this.picker
+		    pickerFocusOut() {
+		        this.picker = false
+		    },
+		    textAreaFocus() {
+		    	this.focused = true
+		    },
+		    textAreaFocusOut(e) {
+		    	this.message = e.target.innerText
+
+		    	if(this.message.length === 0){
+		    		this.focused = false
+		    	}
+		    },
+		    sendMessage(){
+		    	console.log(this.message)
 		    }
 		}
 	}
@@ -127,13 +149,26 @@
 			left: 0;
 			width: calc(100% - 20px);
 			background: $white-dark;
-			height: 42px;
+			min-height: 42px;
+			height: auto;
 			display: flex;
+			align-items: flex-end;
 			padding: 10px;
 			border-bottom-right-radius: 20px;
 			border-bottom-left-radius: 20px;
 
-			textarea {
+			.placeholder {
+				font-weight: $regular;
+				font-size: 14px;
+				line-height: 19px;
+				color: $gray;
+				position: absolute;
+				left: 31px;
+    			top: 21px;
+    			pointer-events: none;
+			}
+
+			.fake-textarea {
 				width: 100%;
 				background: $white;
 				border: none;
@@ -143,15 +178,23 @@
 				font-size: 14px;
 				line-height: 19px;
 				color: $gray;
-				padding-left: 21px;
-				padding-top: 11px;
-				resize: none;
+				padding: 11px 21px;
+				white-space: pre-wrap;
+    			word-wrap: break-word;
+    			cursor: text;
+    			max-height: 81px;
+    			overflow-y: auto;
+
+    			&.focused {
+    				user-select: text;
+    			}
 			}
 
 			#picker {
 				position: absolute;
 				bottom: 62px;
 				right: 15px;
+				outline: none;
 			}
 
 			.emoji-button {
