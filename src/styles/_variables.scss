@@ -16,3 +16,37 @@ $white-secondary: #FBFBFB;
 $white-dark: #F6F6F6;
 $gray: #545454;
 $gray-light: #949494;
+$transparent: rgba(1, 1, 1, 0);
+
+$scrollbar-width: 5px;
+$scrollbar-padding: 15px;
+
+*::-webkit-scrollbar-track
+{
+	border-radius: 10px;
+	background-color: $transparent;
+	opacity: 0;
+}
+
+*::-webkit-scrollbar
+{
+	height: (($scrollbar-padding * 2) + $scrollbar-width);
+	width: 6px;
+	height: 6px;
+	background-color: $transparent;
+	opacity: 0;
+	height: 10px;
+}
+
+*::-webkit-scrollbar-thumb
+{
+	width: 6px;
+	height: 6px;
+	border-radius: 10px;
+	background-color: lighten( $gray-light, 25% );
+	background-clip: padding-box;
+
+	@media (max-width: 991px) {
+		border-radius: 0;
+	}
+}
