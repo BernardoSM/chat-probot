@@ -1,7 +1,12 @@
 <template>
 	<div class="chat">
 		<div class="messages">
-			<Message v-for="(message, i) in messages" :key="i" :text="message.content" :isClerk="isClerk(message.actor_type)" :hasImage="hasImage(i)" :sended="getStatus(message.status)"/>
+			<Message v-for="(message, i) in messages" :key="i" :text="message.text" 
+				:isClerk="isClerk(message.actor_type)" 
+				:hasImage="hasImage(i)" 
+				:sended="getStatus(message.status)" 
+				@deleteMessage="deleteMessage(message)"
+				@editMessage="messageToEdit(message)"/>
 		</div>
 		<div class="input" :class="'size-' + inputSize">
 			<span v-if="!focused" class="placeholder">Digite uma mensagem</span>
@@ -20,6 +25,9 @@
 			<div class="emoji-button" @click="pickerFocus()">
 				<font-awesome-icon :icon="['far', 'grin']" />
 			</div>
+			<div class="emoji-button" @click="editMessage()">
+				<font-awesome-icon :icon="['far', 'edit']" />
+			</div>
 			<div class="send-button" @click="sendMessage()">
 				<font-awesome-icon icon="paper-plane" />
 			</div>
@@ -30,6 +38,7 @@
 <script>
 	import VEmojiPicker from 'v-emoji-picker'
 	import Message from '@/components/UI/Chat/Message.vue'
+	import { mapActions } from 'vuex'
 
 	export default {
 		components: {
@@ -41,114 +50,23 @@
 				picker: false,
 				focused: false,
 				inputSize: 0,
-				message: ''
+				message: '',
+				fakeText: '',
+				messageIdEdit: '',
 			}
 		},
 		computed: {
 			messages() {
-				return [
-					{
-						"id": 3335,
-						"actor_type": "user",
-						"message_type": "normal",
-						"content": "Olá gostaria de saber do meu processo!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					},
-					{
-						"id": 3345,
-						"actor_type": "agent",
-						"message_type": "normal",
-						"content": "Olá Usuário!",
-						"status": "",
-					}
-				].reverse()
+				return this.$store.getters.getMessages
 			}
 		},
 		methods: {
+			...mapActions([
+				'messagesRequest',
+				'sendMessageRequest',
+				'editMessageRequest',
+				'deleteMessageRequest'
+				]),
 			selectEmoji(emoji) {
 				document.querySelector('.fake-textarea').innerText = document.querySelector('.fake-textarea').innerText + emoji.data
 				this.message = document.querySelector('.fake-textarea').innerText
@@ -174,8 +92,42 @@
 		    		this.focused = false
 		    	}
 		    },
+		    resetMessage() {
+		    	this.message = ''
+		    	this.fakeText = ''
+		    	this.messageIdEdit = ''
+
+		    	document.querySelector('.fake-textarea').innerText = ''
+		    	this.focused = false
+		    },
 		    sendMessage(){
-		    	console.log(this.message)
+		    	this.sendMessageRequest(this.message).then(resp => {
+		    		this.doRequests()
+		    		this.resetMessage()
+		    	})
+		    },
+		    messageToEdit(message){
+		    	this.messageIdEdit = message._id
+		    	this.focused = true
+		    	document.querySelector('.fake-textarea').innerText = message.text.trim()
+		    	this.message = this.fakeText
+		    },
+		    editMessage(){
+		    	const { message, messageIdEdit } = this
+
+		    	this.editMessageRequest({ message, messageIdEdit }).then(resp => {
+		    		this.doRequests()
+		    		this.resetMessage()
+		    	},err => {
+		    		this.resetMessage()
+		    	})
+		    },
+		    deleteMessage(message) {
+		    	console.log('teste')
+
+		    	this.deleteMessageRequest(message._id).then(resp => {
+		    		this.doRequests()
+		    	})
 		    },
 		    isClerk(owner) {
 				return owner === 'agent' ? true : false
@@ -191,31 +143,15 @@
 
 				return actor != nextActor ? true : false
 			},
-			sendMessage() {
-				if(this.message.length > 0){
-
-					this.fakeId++
-
-					const {message, fakeId} = this
-
-					this.$store.commit('sendMessage', {message, fakeId})
-
-					// this.sendMessageRequest(this.message).then(resp => {
-					// 	setTimeout(() => {
-					// 		this.$store.commit('updateMessage', this.fakeId)
-					// 	}, 2000)
-							
-					// }, err => {
-					// 	this.openModal = true
-					// 	this.$store.commit('deleteMessage')
-					// })
-
-					this.message = ''
-				}
-			},
 			getStatus(status){
 				return status != 'pending' ? true : false
 			},
+			doRequests(){
+				this.messagesRequest()
+			}
+		},
+		mounted() {
+			this.doRequests()
 		}
 	}
 </script>
@@ -286,6 +222,7 @@
 				line-height: 19px;
 				color: $gray;
 				padding: 11px 21px;
+				padding-bottom: 9px;
 				white-space: pre-wrap;
     			word-wrap: break-word;
     			cursor: text;

@@ -7,10 +7,10 @@
 		</div>
 		<div class="content">
 			<div v-if="!isClerk" class="status">
-				<img v-if="sended" src="@/assets/message-check.png" alt="Status">
+				<img v-if="sended" src="@/assets/message-delete.png" alt="Status" @click="$emit('deleteMessage')">
 				<img v-else src="@/assets/message-watch.png" alt="Status">
 			</div>
-			<div class="text">
+			<div class="text" @click="$emit('editMessage')">
 				{{ text }}
 			</div>
 			<div v-if="notOption" class="buttons">

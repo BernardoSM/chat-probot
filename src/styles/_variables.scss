@@ -50,3 +50,63 @@ $scrollbar-padding: 15px;
 		border-radius: 0;
 	}
 }
+
+a {
+	text-decoration: none;
+	color: $primary;
+	transition: 0.2s;
+
+	&:hover {
+		transition: 0.2s;
+		color: darken($primary, 10);
+	}
+}
+
+.btn {
+	text-decoration: none;
+	border: none;
+	border-radius: 5px;
+	font-family: $font;
+	font-style: normal;
+	font-weight: $bold;
+	font-size: 14px;
+	text-transform: uppercase;
+	color: $gray;
+	height: 53px;
+	padding: 0 30px;
+	display: flex;
+	align-items: center;
+	background: $white-dark;
+	transition: 0.2s;
+	cursor: pointer;
+
+	&:hover {
+		transition: 0.2s;
+		background: $white-dark;
+	}
+
+	&.btn-send {
+		border-radius: 5px;
+	}
+
+	&.btn-card {
+		padding: 5px 10px;
+	}
+
+	&.btn-primary {
+		background: $primary;
+		color: $white;
+		transition: 0.2s;
+
+		&:hover {
+			transition: 0.2s;
+			background: darken($primary, 5);
+		}
+	}
+
+	&:focus {
+		border: none;
+		box-shadow: none;
+		outline: none;
+	}
+}

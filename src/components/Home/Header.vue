@@ -3,15 +3,26 @@
 		<div class="logo">
 			<img src="@/assets/logo.png" alt="Logo">
 		</div>
-		<div class="company">
-			Atendimento da empresa
-		</div>
+		<button class="btn btn-primary" @click="logOut()">
+			Sair
+		</button>
 	</div>
 </template>
 
 <script>
-	export default {
+	import {mapActions} from 'vuex'
 
+	export default {
+		methods: {
+			...mapActions([
+				'authLogout'
+			]),
+			logOut() {
+				this.authLogout().then(resp => {
+					this.$router.push('/login')
+				})
+			}
+		}
 	}
 </script>
 
@@ -24,7 +35,7 @@
 		max-height: 40px;
 
 		@media (max-width: 991px) {
-			padding: 10px 0;
+			padding: 0;
 			max-height: 100%;
 			justify-content: center;
 			margin: 0;
